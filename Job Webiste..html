@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job | The Legacy of Purpose</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Montserrat:wght@100;200;300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- Scripts & Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
+
+    <style>
+        :root {
+            --gold: #D4AF37;
+            --deep-red: #7B0000;
+            --dark: #020202;
+            --glass: rgba(255, 255, 255, 0.02);
+            --gold-gradient: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+        }
+
+        * { cursor: none; }
+
+        body {
+            background-color: var(--dark);
+            color: #e0e0e0;
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, .title-font { font-family: 'Cinzel', serif; }
+
+        /* Custom Cursor */
+        #cursor {
+            width: 20px; height: 20px;
+            background: var(--gold);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform 0.1s;
+        }
+
+        #cursor-follower {
+            width: 40px; height: 40px;
+            border: 1px solid var(--gold);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transition: transform 0.15s cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
+
+        /* Gold Text */
+        .gold-gradient-text {
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+        }
+
+        /* Hero Glitch/Shimmer Effect */
+        .shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+        .shimmer::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 6s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        /* Glass Cards */
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+            transition: all 0.5s ease;
+        }
+        .glass-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-10px);
+        }
+
+        /* Photo Frames */
+        .photo-frame {
+            position: relative;
+            padding: 15px;
+            background: var(--gold-gradient);
+            clip-path: polygon(5% 0, 100% 0, 100% 95%, 95% 100%, 0 100%, 0 5%);
+        }
+        .photo-frame img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            filter: grayscale(40%) contrast(110%);
+            transition: 1s;
+        }
+        .photo-frame:hover img { filter: grayscale(0%); transform: scale(1.05); }
+
+        /* Vanta Background Fix */
+        #vanta-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; opacity: 0.3;
+        }
+
+        /* Cinematic Grain */
+        .grain::before {
+            content: "";
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/7/76/Noise_pnt.png');
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* Scroll Progress Bar */
+        #progress-bar {
+            position: fixed; top: 0; left: 0; height: 3px;
+            background: var(--gold-gradient);
+            z-index: 1000; width: 0%;
+        }
+
+        /* Section Dividers */
+        .divider-gold {
+            width: 100px; height: 2px;
+            background: var(--gold-gradient);
+            margin: 2rem auto;
+        }
+
+        /* Floating Animation */
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
+</head>
+<body class="grain">
+
+    <div id="cursor"></div>
+    <div id="cursor-follower"></div>
+    <div id="progress-bar"></div>
+    <div id="vanta-bg"></div>
+
+    <!-- HERO SECTION -->
+    <section class="h-screen flex flex-col items-center justify-center relative overflow-hidden text-center px-4">
+        <!-- Background Cinematic Image Layer -->
+        <div class="absolute inset-0 z-0 opacity-20">
+            <img src="https://images.unsplash.com/photo-1438232992991-995b7058bbb3?q=80&w=2073&auto=format&fit=crop" class="w-full h-full object-cover parallax-bg" alt="Majestic Background">
+        </div>
+        
+        <div id="hero-content" class="z-10 relative">
+            <h2 class="tracking-[1.5em] text-xs md:text-sm mb-8 opacity-60 gold-gradient-text uppercase" data-aos="fade-down">A Kingdom Legacy</h2>
+            <div class="relative inline-block mb-10">
+                <h1 class="text-9xl md:text-[15rem] font-black gold-gradient-text leading-none shimmer select-none">JOB</h1>
+                <div class="absolute -inset-10 blur-[100px] opacity-20 bg-gold rounded-full"></div>
+            </div>
+            <p class="text-xl md:text-3xl font-light tracking-[0.5em] uppercase text-white" data-aos="fade-up" data-aos-delay="500">
+                Built By Faith <span class="text-gold mx-4">•</span> Driven By Vision
+            </p>
+        </div>
+
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center" data-aos="fade-up" data-aos-delay="1000">
+            <div class="w-[1px] h-24 bg-gradient-to-b from-gold to-transparent animate-pulse"></div>
+            <span class="text-[10px] tracking-widest text-gold opacity-50 uppercase mt-4">Scroll to Begin</span>
+        </div>
+    </section>
+
+    <!-- THE PRIMARY MESSAGE SECTION -->
+    <section id="message" class="py-32 relative z-10 px-6">
+        <div class="max-w-5xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-20 items-center">
+                <div class="photo-frame" data-aos="reveal-right">
+                    <!-- Placeholder for Job's Image - User should replace URL -->
+                    <img src="https://media.licdn.com/dms/image/v2/D5603AQG38x7L25I_ag/profile-displayphoto-shrink_800_800/B56ZSXGu.qGUAc-/0/1737701913897?e=1781740800&v=beta&t=8IrHdPd0ukU0QdSmDGjptqG2NrtQ9kk9oaq29KYzHgU" alt="The Visionary" class="rounded-sm">
+                </div>
+                <div class="space-y-8" data-aos="fade-left">
+                    <h2 class="text-5xl gold-gradient-text">Happy Birthday Message</h2>
+                    <div class="divider-gold ml-0"></div>
+                    <div class="space-y-6 text-xl leading-relaxed font-light text-gray-300">
+                        <p>I wish you many more happy returns of the day, <span class="text-white font-bold border-b border-gold">Job</span>.</p>
+                        <p>May God bless you with all the happiness in the world — health, wealth, success, peace, and a joyful life.</p>
+                        <p>As God created human beings with great abilities and authority, we are able to heal, lead, and overcome in the name of Jesus. Our forefathers lost much through the fall of Adam and Eve under the influence of Satan, but God never completely removed the gifts and abilities He placed within humanity.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-12 text-xl leading-relaxed font-light text-gray-300" data-aos="fade-up">
+                <p>We should continue discovering and developing the abilities, wisdom, and talents that God has placed inside us, and become masters of them through the guidance of Almighty God. I pray that all the good gifts, wisdom, strength, and blessings from God will be upon you.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- INTENTION & SOUL SECTION -->
+    <section class="py-32 bg-[#050505] relative overflow-hidden">
+        <!-- Floating Elements -->
+        <div class="absolute top-1/4 left-10 w-64 h-64 bg-gold/5 blur-[120px] rounded-full floating"></div>
+        <div class="absolute bottom-1/4 right-10 w-96 h-96 bg-red-900/5 blur-[120px] rounded-full floating" style="animation-delay: -2s"></div>
+
+        <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center px-6 relative z-10">
+            <div data-aos="fade-right">
+                <h3 class="text-4xl mb-8 gold-gradient-text">The Divine Intention</h3>
+                <p class="text-gray-400 text-lg mb-8 leading-relaxed">Every individual has their own unique power, purpose, and knowledge. God created every human being with intention. As God says:</p>
+                <div class="relative py-10 px-8 bg-white/5 border-l-2 border-gold mb-8 italic">
+                    <span class="absolute top-0 left-4 text-7xl text-gold/20 font-serif">“</span>
+                    <blockquote class="text-3xl text-white">Before I formed you in the womb, I knew you.</blockquote>
+                </div>
+                <p class="text-gray-400 text-lg">When we think deeply about it, the flesh only has a temporary time on earth, but the soul is eternal because it comes from Almighty God. In every generation, God chooses different individuals for different purposes.</p>
+            </div>
+            <div class="relative" data-aos="zoom-in">
+                <div class="glass-card p-16 text-center group">
+                    <div class="mb-8 flex justify-center">
+                        <svg class="w-16 h-16 text-gold opacity-50" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg>
+                    </div>
+                    <p class="text-2xl italic leading-loose text-white">"Every living soul has strengths, weaknesses, gifts, and responsibilities."</p>
+                    <div class="mt-10 flex justify-center gap-4">
+                        <div class="w-12 h-[1px] bg-gold/50"></div>
+                        <div class="w-2 h-2 rotate-45 bg-gold"></div>
+                        <div class="w-12 h-[1px] bg-gold/50"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BIBLICAL ARCHETYPES -->
+    <section class="py-32 px-6 bg-black">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-5xl text-center mb-4 gold-gradient-text" data-aos="fade-up">Lessons From the Forefathers</h2>
+            <p class="text-center text-gray-500 tracking-[0.4em] uppercase text-xs mb-20">Spiritual Legacies of Power</p>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- David -->
+                <div class="relative group h-[500px] overflow-hidden glass-card p-0" data-aos="fade-up">
+                    <img src="https://i.pinimg.com/736x/f1/a7/f0/f1a7f0619b30deba4442d34300163cac.jpg" class="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-50 transition-opacity duration-700" alt="David">
+                    <div class="absolute inset-0 p-10 flex flex-col justify-end">
+                        <h3 class="text-3xl mb-4 gold-gradient-text">King David</h3>
+                        <p class="text-gray-300 leading-relaxed translate-y-4 group-hover:translate-y-0 transition-transform duration-500">Shepherd David became King David. God gave strength and courage to David, a simple shepherd boy, and he defeated Goliath and became one of the greatest kings of Israel.</p>
+                    </div>
+                </div>
+                <!-- Solomon -->
+                <div class="relative group h-[500px] overflow-hidden glass-card p-0" data-aos="fade-up" data-aos-delay="200">
+                    <img src="https://i.pinimg.com/736x/47/a1/b0/47a1b0bce2f82429d8a8a9531b7e59cc.jpg" class="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-50 transition-opacity duration-700" alt="Solomon">
+                    <div class="absolute inset-0 p-10 flex flex-col justify-end">
+                        <h3 class="text-3xl mb-4 gold-gradient-text">King Solomon</h3>
+                        <p class="text-gray-300 leading-relaxed translate-y-4 group-hover:translate-y-0 transition-transform duration-500">One of the wisest men in the Bible, lost focus because of idol worship and worldly distractions. A reminder that we must control our gifts with wisdom.</p>
+                    </div>
+                </div>
+                <!-- Samson -->
+                <div class="relative group h-[500px] overflow-hidden glass-card p-0" data-aos="fade-up" data-aos-delay="400">
+                    <img src="https://i.pinimg.com/736x/9e/82/a3/9e82a3c66ca886abb58090246617155c.jpg" class="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:opacity-50 transition-opacity duration-700" alt="Samson">
+                    <div class="absolute inset-0 p-10 flex flex-col justify-end">
+                        <h3 class="text-3xl mb-4 gold-gradient-text">Samson</h3>
+                        <p class="text-gray-300 leading-relaxed translate-y-4 group-hover:translate-y-0 transition-transform duration-500">One of the strongest men in the Bible, lost his strength after revealing his secret and falling into weakness. Every human being has gifts, but we must learn to use them with wisdom.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BIBLICAL GIFTS GRID -->
+    <section class="py-32 bg-[#030303] relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-24">
+                <h2 class="text-6xl mb-6 gold-gradient-text" data-aos="fade-down">Biblical Gifts</h2>
+                <div class="divider-gold"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <!-- Optimized Cards for Content -->
+                <div class="glass-card p-8 border-t border-gold/30 hover:bg-gold/5" data-aos="zoom-in">
+                    <h4 class="gold-gradient-text font-bold text-xl mb-4">1. Wisdom</h4>
+                    <p class="text-[10px] text-gold/60 mb-2 uppercase tracking-widest">Example: Solomon</p>
+                    <p class="text-sm text-gray-400">The ability to understand, judge correctly, and lead wisely.</p>
+                </div>
+                <div class="glass-card p-8 border-t border-gold/30 hover:bg-gold/5" data-aos="zoom-in" data-aos-delay="50">
+                    <h4 class="gold-gradient-text font-bold text-xl mb-4">2. Strength</h4>
+                    <p class="text-[10px] text-gold/60 mb-2 uppercase tracking-widest">Example: Samson</p>
+                    <p class="text-sm text-gray-400">Special strength given for protection or purpose.</p>
+                </div>
+                <div class="glass-card p-8 border-t border-gold/30 hover:bg-gold/5" data-aos="zoom-in" data-aos-delay="100">
+                    <h4 class="gold-gradient-text font-bold text-xl mb-4">3. Courage</h4>
+                    <p class="text-[10px] text-gold/60 mb-2 uppercase tracking-widest">Example: Joshua</p>
+                    <p class="text-sm text-gray-400">The ability to lead people and stand for truth.</p>
+                </div>
+                <div class="glass-card p-8 border-t border-gold/30 hover:bg-gold/5" data-aos="zoom-in" data-aos-delay="150">
+                    <h4 class="gold-gradient-text font-bold text-xl mb-4">4. Prophecy</h4>
+                    <p class="text-[10px] text-gold/60 mb-2 uppercase tracking-widest">Example: Elijah</p>
+                    <p class="text-sm text-gray-400">The ability to speak messages inspired by God.</p>
+                </div>
+                <div class="glass-card p-8 border-t border-gold/30 hover:bg-gold/5" data-aos="zoom-in" data-aos-delay="200">
+                    <h4 class="gold-gradient-text font-bold text-xl mb-4">5. Healing</h4>
+                    <p class="text-[10px] text-gold/60 mb-2 uppercase tracking-widest">Example: Jesus</p>
+                    <p class="text-sm text-gray-400">Healing that happens through God’s power.</p>
+                </div>
+                <div class="glass-card p-8 border-t border-gold/30 hover:bg-gold/5" data-aos="zoom-in" data-aos-delay="250">
+                    <h4 class="gold-gradient-text font-bold text-xl mb-4">6. Faith</h4>
+                    <p class="text-[10px] text-gold/60 mb-2 uppercase tracking-widest">Example: Abraham</p>
+                    <p class="text-sm text-gray-400">Strong spiritual trust and endurance.</p>
+                </div>
+                <div class="glass-card p-8 border-t border-gold/30 hover:bg-gold/5" data-aos="zoom-in" data-aos-delay="300">
+                    <h4 class="gold-gradient-text font-bold text-xl mb-4">7. Discernment</h4>
+                    <p class="text-[10px] text-gold/60 mb-2 uppercase tracking-widest">Truth-Seeker</p>
+                    <p class="text-sm text-gray-400">The ability to recognize truth and deception wisely.</p>
+                </div>
+                <div class="glass-card p-8 border-t border-gold/30 hover:bg-gold/5" data-aos="zoom-in" data-aos-delay="350">
+                    <h4 class="gold-gradient-text font-bold text-xl mb-4">8. Teaching</h4>
+                    <p class="text-[10px] text-gold/60 mb-2 uppercase tracking-widest">Mentor</p>
+                    <p class="text-sm text-gray-400">The ability to guide, encourage, and inspire others.</p>
+                </div>
+                <div class="glass-card p-8 border-t border-gold/30 hover:bg-gold/5" data-aos="zoom-in" data-aos-delay="400">
+                    <h4 class="gold-gradient-text font-bold text-xl mb-4">9. Creativity</h4>
+                    <p class="text-[10px] text-gold/60 mb-2 uppercase tracking-widest">Example: Bezalel</p>
+                    <p class="text-sm text-gray-400">God-given artistic and technical skills.</p>
+                </div>
+                <div class="glass-card p-8 border-t border-gold/30 hover:bg-gold/5" data-aos="zoom-in" data-aos-delay="450">
+                    <h4 class="gold-gradient-text font-bold text-xl mb-4">10. Authority</h4>
+                    <p class="text-[10px] text-gold/60 mb-2 uppercase tracking-widest">Kingdom Warrior</p>
+                    <p class="text-sm text-gray-400">Authority to cast out darkness and spread the message.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SPIRITUAL GIFTS THROUGH JESUS -->
+    <section class="py-32 bg-[#020202] relative overflow-hidden px-6">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row gap-16 items-center">
+            <div class="w-full md:w-1/2 space-y-8" data-aos="fade-right">
+                <h2 class="text-5xl gold-gradient-text mb-10">Authority in Jesus</h2>
+                <p class="text-xl text-gray-300">The New Testament especially teaches about spiritual gifts and authority given to believers in the name of Jesus. These include:</p>
+                <ul class="space-y-4">
+                    <li class="flex items-center gap-4 bg-white/5 p-5 rounded-lg border-l-4 border-gold group hover:bg-white/10 transition-all">
+                        <span class="text-gold font-bold text-xl group-hover:scale-125 transition-transform">✝</span>
+                        <span class="text-lg"><span class="text-gold font-bold">Healing:</span> Praying for the sick in Jesus' name.</span>
+                    </li>
+                    <li class="flex items-center gap-4 bg-white/5 p-5 rounded-lg border-l-4 border-gold group hover:bg-white/10 transition-all">
+                        <span class="text-gold font-bold text-xl group-hover:scale-125 transition-transform">✝</span>
+                        <span class="text-lg"><span class="text-gold font-bold">Deliverance:</span> Authority over evil spirits.</span>
+                    </li>
+                    <li class="flex items-center gap-4 bg-white/5 p-5 rounded-lg border-l-4 border-gold group hover:bg-white/10 transition-all">
+                        <span class="text-gold font-bold text-xl group-hover:scale-125 transition-transform">✝</span>
+                        <span class="text-lg"><span class="text-gold font-bold">Speaking in Tongues:</span> Spiritual communication.</span>
+                    </li>
+                    <li class="flex items-center gap-4 bg-white/5 p-5 rounded-lg border-l-4 border-gold group hover:bg-white/10 transition-all">
+                        <span class="text-gold font-bold text-xl group-hover:scale-125 transition-transform">✝</span>
+                        <span class="text-lg"><span class="text-gold font-bold">Prophecy:</span> Encouragement & messages.</span>
+                    </li>
+                    <li class="flex items-center gap-4 bg-white/5 p-5 rounded-lg border-l-4 border-gold group hover:bg-white/10 transition-all">
+                        <span class="text-gold font-bold text-xl group-hover:scale-125 transition-transform">✝</span>
+                        <span class="text-lg"><span class="text-gold font-bold">Miracles:</span> Power through faith.</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="w-full md:w-1/2" data-aos="fade-left">
+                <div class="photo-frame">
+                    <div class="bg-black/80 p-12 text-center h-full flex flex-col justify-center">
+                        <h4 class="text-3xl gold-gradient-text mb-6">1 Corinthians 13</h4>
+                        <p class="italic text-2xl text-white mb-8">“Even if someone has great spiritual gifts, without love they are nothing.”</p>
+                        <div class="h-[1px] w-1/2 bg-gold/50 mx-auto mb-8"></div>
+                        <p class="text-lg text-gray-400">So according to the Bible: Christians may pray, heal, encourage, and serve—but the power ultimately belongs to God.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ABOUT YOUR ABILITIES SECTION -->
+    <section class="py-32 px-6">
+        <div class="max-w-4xl mx-auto">
+            <div class="glass-card overflow-hidden">
+                <div class="h-64 relative">
+                    <img src="https://scontent.cdninstagram.com/v/t51.82787-19/575308606_18098532160780961_2679667657305374659_n.jpg?_nc_cat=107&ccb=7-5&_nc_sid=bf7eb4&efg=eyJ2ZW5jb2RlX3RhZyI6InByb2ZpbGVfcGljLnd3dy4xMDgwLkMzIn0%3D&_nc_ohc=5-31VCh1yhwQ7kNvwH4eaK0&_nc_oc=AdqFSpr-yQIivnzujturdvBvVbXBmqFYbu-PwcWOHLM3yiJZFuhCQPCKuKHU8-WSLpZmPQb0R1oXTs02h3SENfcd&_nc_zt=24&_nc_ht=scontent.cdninstagram.com&_nc_gid=YCRgjD50r3WdeGW2kpEXvQ&_nc_ss=7b6a8&oh=00_Af7s_P_yCgxn5lbqKDpBv5KioWADCby-AIScMZkhSXW3tw&oe=6A1CF154" class="w-full h-full object-cover" alt="Creativity">
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#020202] to-transparent"></div>
+                </div>
+                <div class="p-16 text-center">
+                    <h2 class="text-4xl gold-gradient-text mb-8" data-aos="zoom-in">About Your Abilities and Future</h2>
+                    <p class="text-2xl mb-12 leading-relaxed text-gray-300" data-aos="fade-up">According to my understanding, you already have many God-given abilities. You have the word of God within you, you sing, preach, create videos, and you have the ability to learn independently.</p>
+                    <div class="bg-gold/10 p-10 border border-gold/30 backdrop-blur-md" data-aos="fade-up">
+                        <h4 class="text-gold tracking-[0.6em] uppercase mb-6 font-bold text-sm">The Mandate</h4>
+                        <p class="text-xl leading-relaxed">You should use your abilities fully. Doing things casually is fine sometimes, but only doing things casually will not produce great results. You must focus on your gifts and abilities.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BREAKING THE MIDDLE CLASS MYTH -->
+    <section class="py-32 bg-[#050505] relative px-6">
+        <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-20 items-center">
+            <div data-aos="fade-right">
+                <h2 class="text-5xl gold-gradient-text mb-10">Rising Above Limitations</h2>
+                <p class="text-xl text-gray-300 mb-12 leading-relaxed">Being born into a middle-class or poor family is not a curse. I truly believe God does not want His children to live in hopelessness or limitation. There is nothing wrong with a believer wanting to grow, succeed, build wealth honestly, and rise above struggles.</p>
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="photo-frame p-1"><div class="bg-black p-4 text-center">David <span class="block text-xs text-gold">Shepherd</span></div></div>
+                    <div class="photo-frame p-1"><div class="bg-black p-4 text-center">Joseph <span class="block text-xs text-gold">Slave</span></div></div>
+                    <div class="photo-frame p-1"><div class="bg-black p-4 text-center">Moses <span class="block text-xs text-gold">Exile</span></div></div>
+                    <div class="photo-frame p-1"><div class="bg-black p-4 text-center">Jesus <span class="block text-xs text-gold">Humble</span></div></div>
+                </div>
+            </div>
+            <div class="glass-card p-12 border-b-4 border-gold bg-gradient-to-br from-gold/5 to-transparent" data-aos="fade-left">
+                <h3 class="text-3xl mb-8 gold-gradient-text">The Real Message</h3>
+                <p class="text-2xl text-white italic mb-10 leading-relaxed">“Grow, build, lead, prosper, and use your abilities — but never lose your soul, humility, or relationship with God.”</p>
+                <p class="text-gray-400">The Bible encourages using talents, wisdom, discipline, and hard work wisely. The Parable of the Talents teaches that God expects us to use what we are given faithfully.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- THE RED CORRIDOR SECTION -->
+    <section class="py-64 relative flex items-center justify-center overflow-hidden">
+        <!-- Dramatic Red Background -->
+        <div class="absolute inset-0 z-0">
+            <img src="https://i.pinimg.com/736x/f1/b0/06/f1b006ff4a5cc21fb849ee2293f805e2.jpg" class="w-full h-full object-cover grayscale brightness-[1]" alt="Cinema">
+            <div class="absolute inset-0 bg-gradient-to-r from-black via-red-950/40 to-black"></div>
+        </div>
+        
+        <div class="max-w-5xl mx-auto text-center relative z-10 px-6">
+            <div class="mb-10" data-aos="zoom-out" data-aos-duration="2000">
+                <h2 class="text-8xl md:text-[12rem] font-black text-white tracking-tighter mix-blend-overlay">ABSOLUTE CINEMA</h2>
+                <div class="h-2 w-full bg-red-600 mt-2 shadow-[0_0_30px_#ff0000]"></div>
+            </div>
+            <h3 class="text-3xl text-red-500 tracking-[0.8em] mb-16 uppercase font-bold" data-aos="fade-up">The Red Corridor</h3>
+            <div class="glass-card p-16 bg-red-950/10 border-red-900/30" data-aos="fade-up">
+                <p class="text-2xl leading-relaxed mb-10 text-gray-200">If we look at the videos you have made so far, every project has been successful. “The Red Corridor” is one of the biggest examples. Even today, not a single person has said it looks bad. Everyone who watches the teaser praises it and says it looks like <span class="text-white font-bold text-4xl block mt-6 tracking-[0.3em] uppercase">absolute cinema.</span></p>
+                <div class="inline-block py-6 px-16 border-2 border-gold/50 rounded-full hover:border-gold transition-colors duration-500">
+                    <p class="text-3xl gold-gradient-text font-bold uppercase tracking-widest">I am honestly proud of you.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- THE BROTHERHOOD (ARMY) -->
+    <section class="py-32 relative overflow-hidden bg-black">
+        <div class="absolute inset-0 opacity-10">
+            <div class="grid grid-cols-8 h-full">
+                <div class="border-r border-white/10"></div><div class="border-r border-white/10"></div><div class="border-r border-white/10"></div><div class="border-r border-white/10"></div><div class="border-r border-white/10"></div><div class="border-r border-white/10"></div><div class="border-r border-white/10"></div><div class="border-r border-white/10"></div>
+            </div>
+        </div>
+        <div class="max-w-5xl mx-auto text-center relative z-10 px-6" data-aos="fade-up">
+            <h2 class="text-5xl gold-gradient-text mb-12">My Strength & Support</h2>
+            <div class="relative mb-12">
+                <p class="text-4xl md:text-5xl font-light italic leading-tight text-white">“You are one of my greatest supports. With you and Annaya, I truly feel like we have our own army.”</p>
+            </div>
+            <p class="text-xl text-gray-400 leading-relaxed max-w-3xl mx-auto">Right now, financially we may be struggling and facing pressures, but I genuinely believe it is possible for us to grow if we start fully using the abilities and talents God has given us.</p>
+        </div>
+    </section>
+
+    <!-- TIME & RISK SECTION -->
+    <section class="py-32 bg-[#080808] px-6">
+        <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+            <div class="relative h-[400px] group" data-aos="fade-right">
+                <div class="absolute inset-0 bg-gold-gradient rotate-3 rounded-lg opacity-20 group-hover:rotate-0 transition-transform duration-500"></div>
+                <div class="relative h-full glass-card flex flex-col justify-center items-center p-10 text-center">
+                    <h3 class="text-6xl gold-gradient-text mb-6">The Season is Now</h3>
+                    <div class="divider-gold"></div>
+                    <p class="text-gold/50 uppercase tracking-[0.4em] text-sm">Age Plays a Major Role</p>
+                </div>
+            </div>
+            <div data-aos="fade-left" class="space-y-10">
+                <p class="text-2xl text-gray-300 leading-relaxed">As people grow older, responsibilities and pressures increase. At that stage, taking risks becomes harder because of family responsibilities and life burdens.</p>
+                <div class="p-8 bg-gold/5 border-l-8 border-gold backdrop-blur-sm">
+                    <p class="text-3xl text-white font-bold leading-tight">Right now, you are in the right age and season of life.</p>
+                </div>
+                <p class="text-xl text-gray-400 leading-relaxed">So do not waste your time, your opportunities, or the abilities God has given you. May God guide you, strengthen you, and bless your future abundantly.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FINAL WISHES & LEGACY -->
+    <section class="py-64 bg-black relative px-6 overflow-hidden">
+        <!-- Floating Particles Layer -->
+        <div id="particles-js" class="absolute inset-0 opacity-20"></div>
+
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+            <h2 class="text-8xl md:text-[10rem] gold-gradient-text leading-none mb-20" data-aos="zoom-in">Happy Birthday, <br>Job.</h2>
+            
+            <div class="space-y-12 text-gray-300 text-xl md:text-2xl leading-loose font-light max-w-4xl mx-auto" data-aos="fade-up">
+                <p>You are not just a brother to me you are my strength, my support system, and one of the greatest blessings God has given in my life. Whenever I look at your journey, your talent, your creativity, and your heart, I truly believe that God has placed something special within you.</p>
+                <p>I may not always express it perfectly, but deep inside, I genuinely want to see you reach the highest levels in life—successful, peaceful, financially strong, respected, and truly happy. I believe your future holds something powerful, because people with real talent, vision, and heart are rare.</p>
+                <p>No matter how difficult life becomes, always remember this—you are capable of achieving far more than you imagine. God has already blessed you with gifts, wisdom, creativity, and the ability to inspire people around you. Never doubt your worth or your potential.</p>
+            </div>
+
+            <div class="pt-32" data-aos="zoom-up">
+                <h3 class="text-4xl text-white mb-8 italic font-serif opacity-80">I am always proud to call you Job.</h3>
+                <div class="divider-gold"></div>
+                <p class="gold-gradient-text text-4xl font-bold tracking-[0.3em] animate-pulse">Your best days are still ahead of you. ❤️</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="py-20 text-center text-gray-700 text-[10px] tracking-[1em] uppercase border-t border-white/5 bg-black">
+        Digital Legacy &bull; 2024 &bull; Job: The Legacy of Purpose
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Smooth Scroll
+        const lenis = new Lenis();
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // Cursor Animation
+        const cursor = document.querySelector('#cursor');
+        const follower = document.querySelector('#cursor-follower');
+        document.addEventListener('mousemove', (e) => {
+            gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0 });
+            gsap.to(follower, { x: e.clientX - 10, y: e.clientY - 10, duration: 0.3 });
+        });
+
+        // Progress Bar
+        window.onscroll = function() {
+            let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            let scrolled = (winScroll / height) * 100;
+            document.getElementById("progress-bar").style.width = scrolled + "%";
+        };
+
+        // Initialize AOS
+        AOS.init({ duration: 1500, once: false });
+
+        // Vanta Background
+        VANTA.NET({
+            el: "#vanta-bg",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0xd4af37,
+            backgroundColor: 0x20202,
+            points: 10.00,
+            maxDistance: 25.00,
+            spacing: 17.00
+        });
+
+        // GSAP Parallax Background
+        gsap.to(".parallax-bg", {
+            scrollTrigger: {
+                scrub: true
+            }, 
+            y: 200,
+            ease: "none"
+        });
+
+        // Text Shimmer Reveal
+        gsap.to(".gold-gradient-text", {
+            backgroundPosition: "200% center",
+            duration: 8,
+            repeat: -1,
+            ease: "linear"
+        });
+    </script>
+</body>
+</html>
